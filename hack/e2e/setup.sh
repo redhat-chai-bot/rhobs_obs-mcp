@@ -325,6 +325,7 @@ phase_extras() {
             openshift)  _run $KUBECTL apply -k "${ROOT_DIR}/manifests/tempo/extras/openshift" ;;
             *)          _run $KUBECTL apply -k "${ROOT_DIR}/manifests/tempo/extras/kubernetes" ;;
         esac
+        _wait_rollout tracing deployment/minio 5m
         _wait_rollout tracing statefulset/tempo-tempo1-ingester 5m
         _wait_rollout tracing statefulset/tempo-tempo2-ingester 5m
         # Query-frontend serves the Tempo HTTP API used by e2e search tests.
