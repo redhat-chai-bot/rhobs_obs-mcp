@@ -42,7 +42,7 @@ spec:
               value: tempo
             - name: MINIO_SECRET_KEY
               value: supersecret
-          image: docker.io/minio/minio
+          image: quay.io/minio/minio:RELEASE.2024-12-13T22-19-12Z
           name: minio
           ports:
             - containerPort: 9000

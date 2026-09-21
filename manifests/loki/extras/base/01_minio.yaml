@@ -40,8 +40,7 @@ spec:
               value: loki
             - name: MINIO_SECRET_KEY
               value: supersecret
-          # Pinned for reproducible hack deployments (MinIO RELEASE.2024-12-13 security fix).
-          image: docker.io/minio/minio:RELEASE.2024-12-13T22-19-12Z
+          image: quay.io/minio/minio:RELEASE.2024-12-13T22-19-12Z
           name: minio
           ports:
             - containerPort: 9000
