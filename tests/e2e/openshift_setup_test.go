@@ -66,6 +66,7 @@ func (t *tokenRoundTripper) RoundTrip(req *http.Request) (*http.Response, error)
 // - parseable by net/url
 // - scheme is "https"
 // - host is non-empty and contains a dot (i.e. not just a bare word)
+// - host is not in-cluster service DNS (*.svc / *.svc.cluster.local)
 func assertValidRouteURL(t *testing.T, raw string) {
 	t.Helper()
 	parsed, err := url.Parse(raw)
@@ -76,10 +77,16 @@ func assertValidRouteURL(t *testing.T, raw string) {
 	if parsed.Scheme != "https" {
 		t.Errorf("Expected scheme 'https', got %q in URL: %s", parsed.Scheme, raw)
 	}
-	if parsed.Host == "" {
+	host := parsed.Hostname()
+	if host == "" {
 		t.Errorf("URL has no host: %s", raw)
 	}
-	if !strings.Contains(parsed.Host, ".") {
-		t.Errorf("URL host looks invalid (no dot): %s", parsed.Host)
+	if !strings.Contains(host, ".") {
+		t.Errorf("URL host looks invalid (no dot): %s", host)
+	}
+	// Match cluster DNS suffixes only (foo.ns.svc / foo.ns.svc.cluster.local),
+	// not Route hosts that happen to contain the substring "svc".
+	if strings.HasSuffix(host, ".svc") || strings.Contains(host, ".svc.") {
+		t.Errorf("URL looks like in-cluster service DNS, expected OpenShift Route host: %s", raw)
 	}
 }
