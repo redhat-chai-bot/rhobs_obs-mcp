@@ -19,6 +19,8 @@ data:
 
     [toolset_configs."observability/logs"]
     auth_mode = "kubeconfig"
+    use_route = true
 
     [toolset_configs."observability/traces"]
     auth_mode = "kubeconfig"
+    use_route = true

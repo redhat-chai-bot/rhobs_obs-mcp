@@ -181,6 +181,36 @@ func TestTempoListInstances(t *testing.T) {
 	t.Log("tempo_list_instances returned successfully")
 }
 
+// TestLokiListInstances_RouteURLs verifies loki_list_instances returns OpenShift
+// Route hosts (https, not *.svc) when use_route is enabled. This is the
+// embedder-visible signal that TOML/CLI use_route actually installed a Resolver.
+func TestLokiListInstances_RouteURLs(t *testing.T) {
+	resp, err := mcpClient.CallTool(t, 101, "loki_list_instances", map[string]any{})
+	if err != nil {
+		t.Fatalf("Failed to call loki_list_instances: %v", err)
+	}
+	if resp.Error != nil {
+		t.Fatalf("MCP error: %s", resp.Error.Message)
+	}
+	if isErr, ok := resp.Result["isError"].(bool); ok && isErr {
+		resultJSON, _ := json.Marshal(resp.Result)
+		t.Fatalf("loki_list_instances returned an error result: %s", resultJSON)
+	}
+
+	structured := resp.Result["structuredContent"].(map[string]any)
+	instances := structured["instances"].([]any)
+	require.NotEmpty(t, instances, "expected at least one LokiStack instance")
+
+	for i, raw := range instances {
+		inst, ok := raw.(map[string]any)
+		require.True(t, ok, "instance %d: expected map", i)
+		urlStr, _ := inst["url"].(string)
+		require.NotEmpty(t, urlStr, "instance %d (%v/%v): missing url", i, inst["lokiNamespace"], inst["lokiName"])
+		assertValidRouteURL(t, urlStr)
+		t.Logf("loki instance %s/%s url=%s", inst["lokiNamespace"], inst["lokiName"], urlStr)
+	}
+}
+
 func TestTempoSearchTraces_Multitenant(t *testing.T) {
 	resp := callTempoTool(t, 40, "tempo_search_traces", map[string]any{
 		"tempoNamespace": "tracing",
