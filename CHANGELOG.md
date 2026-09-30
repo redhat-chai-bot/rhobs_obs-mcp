@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.8.0] - 2026-09-30
+
+### Added
+
+- Declare tool RBAC metadata for kubernetes-mcp-server parity ([#205](https://github.com/rhobs/obs-mcp/pull/205))
+- Extract OpenShift route discovery into `pkg/openshift` ([#191](https://github.com/rhobs/obs-mcp/pull/191))
+
+### Changed
+
+- Bump `kubernetes-mcp-server` to v0.0.67 and `github.com/modelcontextprotocol/go-sdk` to v1.8.0 ([#205](https://github.com/rhobs/obs-mcp/pull/205), [#192](https://github.com/rhobs/obs-mcp/pull/192))
+- Refactor metrics toolset to the Toolset API ([#184](https://github.com/rhobs/obs-mcp/pull/184))
+- Switch KinD e2e auth mode to kubeconfig ([#183](https://github.com/rhobs/obs-mcp/pull/183))
+- Document patch release flow and VERSION bump in `RELEASE.md` ([#194](https://github.com/rhobs/obs-mcp/pull/194))
+- Bump Go and GitHub Actions dependencies ([#200](https://github.com/rhobs/obs-mcp/pull/200), [#197](https://github.com/rhobs/obs-mcp/pull/197), [#190](https://github.com/rhobs/obs-mcp/pull/190), [#166](https://github.com/rhobs/obs-mcp/pull/166))
+
+### Fixed
+
+- Move openshift-mcp-server `port` / `log_level` into TOML after upstream CLI flag removal ([#205](https://github.com/rhobs/obs-mcp/pull/205))
+- Use `quay.io/openshifttest/minio` for Kind e2e MinIO setups ([#205](https://github.com/rhobs/obs-mcp/pull/205), [#203](https://github.com/rhobs/obs-mcp/pull/203))
+- Set `ReadHeaderTimeout` on the HTTP server ([#196](https://github.com/rhobs/obs-mcp/pull/196))
+- Redact sensitive headers in debug log output ([#195](https://github.com/rhobs/obs-mcp/pull/195))
+- Harden Tempo e2e against query-frontend connection flaps ([#193](https://github.com/rhobs/obs-mcp/pull/193))
+- Fall back to service DNS when a Tempo route is not found ([#191](https://github.com/rhobs/obs-mcp/pull/191))
+
 ## [v0.7.1] - 2026-07-30
 
 ### Fixed
