@@ -40,7 +40,8 @@ spec:
               value: loki
             - name: MINIO_SECRET_KEY
               value: supersecret
-          image: quay.io/minio/minio:RELEASE.2024-12-13T22-19-12Z
+          # Official minio/minio on quay.io and docker.io is no longer publicly pullable.
+          image: quay.io/openshifttest/minio:latest@sha256:fc6bedc99355fbdf1982a734475b56d01f4bbc59a9ec6f9a7bc4e222f74f5326
           name: minio
           ports:
             - containerPort: 9000
