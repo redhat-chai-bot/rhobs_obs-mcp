@@ -24,10 +24,6 @@ spec:
           args:
             - --config
             - /etc/openshift-mcp-server/config.toml
-            - --port
-            - "9100"
-            - --log-level
-            - "4"
           ports:
             - containerPort: 9100
               name: mcp

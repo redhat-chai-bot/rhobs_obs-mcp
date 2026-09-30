@@ -5,6 +5,8 @@ metadata:
   namespace: obs-mcp
 data:
   config.toml: |
+    port = "9100"
+    log_level = 4
     toolsets = ["observability/metrics", "observability/logs", "observability/traces", "observability/otelcol"]
     experimental_enable_target_compatibility_tool_filters = true
 
