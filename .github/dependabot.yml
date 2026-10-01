@@ -3,7 +3,9 @@ updates:
   - package-ecosystem: gomod
     directory: /
     schedule:
-      interval: weekly
+      interval: cron
+      # Roughly every 3 days at 02:30 UTC (days 1, 4, 7, … of each month)
+      cronjob: "30 2 */3 * *"
     open-pull-requests-limit: 5
     groups:
       go-dependencies:
