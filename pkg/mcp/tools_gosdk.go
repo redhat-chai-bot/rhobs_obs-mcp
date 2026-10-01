@@ -4,9 +4,9 @@
 // Original code is licensed under the Apache License, Version 2.0.
 //
 // The copy changes ServerToolToGoSdkTool to accept plain arguments
-// (kubernetes.Manager, api.BaseConfig) instead of *Server, decoupling it from
-// the kubernetes-mcp-server infrastructure (config hot reload, multi-cluster
-// targeting, confirmation rules) and its transitive dependencies.
+// (kubernetes.Manager, *config.Config, toolset name/config) instead of *Server,
+// decoupling it from the kubernetes-mcp-server infrastructure (config hot reload,
+// multi-cluster targeting, confirmation rules) and its transitive dependencies.
 
 package mcp
 
@@ -18,13 +18,16 @@ import (
 	"reflect"
 
 	"github.com/containers/kubernetes-mcp-server/pkg/api"
+	"github.com/containers/kubernetes-mcp-server/pkg/config"
 	"github.com/containers/kubernetes-mcp-server/pkg/kubernetes"
 	"github.com/google/jsonschema-go/jsonschema"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"k8s.io/utils/ptr"
+
+	"github.com/rhobs/obs-mcp/pkg/toolcfg"
 )
 
-func ServerToolToGoSdkTool(mgr *kubernetes.Manager, cfg api.BaseConfig, tool api.ServerTool) (*mcp.Tool, mcp.ToolHandler, error) {
+func ServerToolToGoSdkTool(mgr *kubernetes.Manager, cfg *config.Config, toolsetName string, toolsetConfig config.ExtendedConfig, tool api.ServerTool) (*mcp.Tool, mcp.ToolHandler, error) {
 	// Validate the input schema upfront to mirror the SDK's AddTool panic
 	// surface. This keeps applyToolsets' two-phase model panic-free at commit
 	// time even if a misconfigured tool slips through the toolset boundary.
@@ -84,8 +87,8 @@ func ServerToolToGoSdkTool(mgr *kubernetes.Manager, cfg api.BaseConfig, tool api
 		}
 
 		result, err := tool.Handler(api.ToolHandlerParams{
-			Context:          ctx,
-			BaseConfig:       cfg,
+			Context:          toolcfg.With(ctx, toolsetName, toolsetConfig),
+			Config:           cfg,
 			KubernetesClient: k,
 			ToolCallRequest:  toolCallRequest,
 		})
@@ -185,16 +188,4 @@ func GoSdkToolCallParamsToToolCallRequest(toolCallParams *mcp.CallToolParamsRaw)
 
 func (t *ToolCallRequest) GetArguments() map[string]any {
 	return t.arguments
-}
-
-type mcpBaseConfig struct {
-	api.BaseConfig
-	toolsetConfig api.ExtendedConfig
-}
-
-func (m *mcpBaseConfig) GetToolsetConfig(name string) (api.ExtendedConfig, bool) {
-	if m.toolsetConfig != nil {
-		return m.toolsetConfig, true
-	}
-	return nil, false
 }
