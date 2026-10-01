@@ -138,7 +138,7 @@ func SetupTools(mcpServer *mcp.Server, opts ObsMCPOptions) error {
 	return nil
 }
 
-func addToolset(mcpServer *mcp.Server, mgr *kubernetes.Manager, cfg *config.Config, toolset api.Toolset, toolsetConfig api.ExtendedConfig, toolMetrics *instrumentation.ToolMetrics) error {
+func addToolset(mcpServer *mcp.Server, mgr *kubernetes.Manager, cfg *config.Config, toolset api.Toolset, toolsetConfig config.ExtendedConfig, toolMetrics *instrumentation.ToolMetrics) error {
 	if toolsetConfig == nil {
 		return fmt.Errorf("configuration for %s toolset is missing", toolset.GetName())
 	}
