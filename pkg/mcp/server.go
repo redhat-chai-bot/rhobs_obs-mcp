@@ -98,14 +98,16 @@ func SetupTools(mcpServer *mcp.Server, opts ObsMCPOptions) error {
 	cfg := config.BaseDefault()
 	// In header auth mode, require the caller's OAuth token instead of falling back to the kubeconfig token.
 	// In standalone mode, all toolset configs have the same AuthMode, because it's a single CLI flag.
-	cfg.RequireOAuth = opts.Metrics.AuthMode == auth.AuthModeHeader
+	if opts.Metrics.AuthMode == auth.AuthModeHeader {
+		cfg.RequireOAuth.SetForTest(true)
+	}
 	mgr, err := kubernetes.NewManager(context.Background(), cfg, restConfig, opts.KubernetesClientConfig)
 	if err != nil {
 		return err
 	}
 
 	if slices.Contains(opts.Toolsets, metrics.ToolsetName) {
-		err := addToolset(mcpServer, mgr, &metrics.Toolset{}, opts.Metrics, opts.toolMetrics)
+		err := addToolset(mcpServer, mgr, cfg, &metrics.Toolset{}, opts.Metrics, opts.toolMetrics)
 		if err != nil {
 			return err
 		}
@@ -113,14 +115,14 @@ func SetupTools(mcpServer *mcp.Server, opts ObsMCPOptions) error {
 
 	if slices.Contains(opts.Toolsets, traces.ToolsetName) {
 		opts.Traces.ClientMetrics = opts.clientMetrics
-		err := addToolset(mcpServer, mgr, &traces.Toolset{}, opts.Traces, opts.toolMetrics)
+		err := addToolset(mcpServer, mgr, cfg, &traces.Toolset{}, opts.Traces, opts.toolMetrics)
 		if err != nil {
 			return err
 		}
 	}
 
 	if slices.Contains(opts.Toolsets, otelcol.ToolsetName) {
-		err := addToolset(mcpServer, mgr, &otelcol.Toolset{}, opts.Otelcol, opts.toolMetrics)
+		err := addToolset(mcpServer, mgr, cfg, &otelcol.Toolset{}, opts.Otelcol, opts.toolMetrics)
 		if err != nil {
 			return err
 		}
@@ -128,7 +130,7 @@ func SetupTools(mcpServer *mcp.Server, opts ObsMCPOptions) error {
 
 	if slices.Contains(opts.Toolsets, logs.ToolsetName) {
 		opts.Logs.ClientMetrics = opts.clientMetrics
-		err := addToolset(mcpServer, mgr, &logs.Toolset{}, opts.Logs, opts.toolMetrics)
+		err := addToolset(mcpServer, mgr, cfg, &logs.Toolset{}, opts.Logs, opts.toolMetrics)
 		if err != nil {
 			return err
 		}
@@ -136,15 +138,14 @@ func SetupTools(mcpServer *mcp.Server, opts ObsMCPOptions) error {
 	return nil
 }
 
-func addToolset(mcpServer *mcp.Server, mgr *kubernetes.Manager, toolset api.Toolset, toolsetConfig api.ExtendedConfig, toolMetrics *instrumentation.ToolMetrics) error {
+func addToolset(mcpServer *mcp.Server, mgr *kubernetes.Manager, cfg *config.Config, toolset api.Toolset, toolsetConfig config.ExtendedConfig, toolMetrics *instrumentation.ToolMetrics) error {
 	if toolsetConfig == nil {
 		return fmt.Errorf("configuration for %s toolset is missing", toolset.GetName())
 	}
 
-	baseConfig := &mcpBaseConfig{toolsetConfig: toolsetConfig}
 	serverTools := toolset.GetTools(nil)
 	for i := range serverTools {
-		goSdkTool, goSdkHandler, err := ServerToolToGoSdkTool(mgr, baseConfig, serverTools[i])
+		goSdkTool, goSdkHandler, err := ServerToolToGoSdkTool(mgr, cfg, toolset.GetName(), toolsetConfig, serverTools[i])
 		if err != nil {
 			return err
 		}
