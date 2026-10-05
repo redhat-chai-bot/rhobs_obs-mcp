@@ -143,7 +143,7 @@ func addToolset(mcpServer *mcp.Server, mgr *kubernetes.Manager, cfg *config.Conf
 		return fmt.Errorf("configuration for %s toolset is missing", toolset.GetName())
 	}
 
-	serverTools := toolset.GetTools(nil)
+	serverTools := toolset.GetTools(context.Background(), api.ToolsetContext{})
 	for i := range serverTools {
 		goSdkTool, goSdkHandler, err := ServerToolToGoSdkTool(mgr, cfg, toolset.GetName(), toolsetConfig, serverTools[i])
 		if err != nil {

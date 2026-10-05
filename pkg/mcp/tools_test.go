@@ -1,6 +1,7 @@
 package mcp
 
 import (
+	"context"
 	"encoding/json"
 	"regexp"
 	"testing"
@@ -11,7 +12,7 @@ import (
 )
 
 func getToolByName(name string) api.Tool {
-	allTools := (&tools.Toolset{}).GetTools(nil)
+	allTools := (&tools.Toolset{}).GetTools(context.Background(), api.ToolsetContext{})
 	for i := range allTools {
 		if allTools[i].Tool.Name == name {
 			return allTools[i].Tool
@@ -327,7 +328,7 @@ func TestToolPatternValidation(t *testing.T) {
 }
 
 func TestToolsHaveOutputSchema(t *testing.T) {
-	allTools := (&tools.Toolset{}).GetTools(nil)
+	allTools := (&tools.Toolset{}).GetTools(context.Background(), api.ToolsetContext{})
 
 	if len(allTools) == 0 {
 		t.Fatal("expected at least one tool")

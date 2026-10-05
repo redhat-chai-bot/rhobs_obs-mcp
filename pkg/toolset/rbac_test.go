@@ -1,6 +1,7 @@
 package toolset
 
 import (
+	"context"
 	"testing"
 
 	"github.com/containers/kubernetes-mcp-server/pkg/api"
@@ -21,7 +22,7 @@ func TestAllToolsDeclareValidRBAC(t *testing.T) {
 
 	for _, ts := range toolsets {
 		t.Run(ts.GetName(), func(t *testing.T) {
-			tools := ts.GetTools(nil)
+			tools := ts.GetTools(context.Background(), api.ToolsetContext{})
 			if len(tools) == 0 {
 				t.Fatal("expected tools")
 			}

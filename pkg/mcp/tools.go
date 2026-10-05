@@ -1,6 +1,8 @@
 package mcp
 
 import (
+	"context"
+
 	"github.com/containers/kubernetes-mcp-server/pkg/api"
 
 	"github.com/rhobs/obs-mcp/pkg/logs"
@@ -18,7 +20,7 @@ type ToolGroup struct {
 
 // GroupedTools returns tools organized by category for documentation.
 func GroupedTools() []ToolGroup {
-	allMetricsTools := (&metrics.Toolset{}).GetTools(nil)
+	allMetricsTools := (&metrics.Toolset{}).GetTools(context.Background(), api.ToolsetContext{})
 	var promTools, alertTools []api.ServerTool
 	for i := range allMetricsTools {
 		switch allMetricsTools[i].Tool.Name {
@@ -32,8 +34,8 @@ func GroupedTools() []ToolGroup {
 	return []ToolGroup{
 		{Name: "Prometheus / Thanos", Icon: "📈", Tools: promTools},
 		{Name: "Alertmanager", Icon: "🔔", Tools: alertTools},
-		{Name: "Tempo (Distributed Tracing)", Icon: "🔍", Tools: (&traces.Toolset{}).GetTools(nil)},
-		{Name: "Loki (Log Management)", Icon: "📋", Tools: (&logs.Toolset{}).GetTools(nil)},
-		{Name: "OpenTelemetry Collector", Icon: "⚙️", Tools: (&otelcol.Toolset{}).GetTools(nil)},
+		{Name: "Tempo (Distributed Tracing)", Icon: "🔍", Tools: (&traces.Toolset{}).GetTools(context.Background(), api.ToolsetContext{})},
+		{Name: "Loki (Log Management)", Icon: "📋", Tools: (&logs.Toolset{}).GetTools(context.Background(), api.ToolsetContext{})},
+		{Name: "OpenTelemetry Collector", Icon: "⚙️", Tools: (&otelcol.Toolset{}).GetTools(context.Background(), api.ToolsetContext{})},
 	}
 }
